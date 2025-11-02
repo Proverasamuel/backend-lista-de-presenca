@@ -9,4 +9,9 @@ app.use("/classes", classRoutes);
 app.use("/presence", presenceRoutes);
 app.use("/users", userRoutes);
 
+
+// Rota de teste
+app.get("/", (req, res) => {
+  res.send("API funcionando 🎉");
+});
 export default app;
