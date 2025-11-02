@@ -4,32 +4,36 @@ import crypto from "crypto";
 
 export const createClass = async (req, res) => {
   try {
-    const { turmaId, disciplinaId, dataHora, duracao, localizacao } = req.body;
+    const { universidadeId, turmaId, disciplinaId, dataHora, duracao, localizacao } = req.body;
 
-    // Token temporário para o QR code (expira após 5 min)
     const token = crypto.randomBytes(8).toString("hex");
     const expiresAt = Date.now() + 5 * 60 * 1000;
 
     const newClass = {
-      turmaId,
-      disciplinaId,
       dataHora,
       duracao,
       localizacao,
       token,
       expiresAt,
-      createdAt: new Date(),
+      criadoEm: new Date(),
     };
 
-    const docRef = await db.collection("aulas").add(newClass);
+    const ref = db
+      .collection("universidades")
+      .doc(universidadeId)
+      .collection("turmas")
+      .doc(turmaId)
+      .collection("disciplinas")
+      .doc(disciplinaId)
+      .collection("aulas");
 
-    // Gera QR code com o token
-    const qrData = { token, aulaId: docRef.id };
+    const doc = await ref.add(newClass);
+
+    const qrData = { token, aulaId: doc.id };
     const qrCode = await QRCode.toDataURL(JSON.stringify(qrData));
 
-    res.status(201).json({ id: docRef.id, qrCode, ...newClass });
+    res.status(201).json({ id: doc.id, qrCode, ...newClass });
   } catch (error) {
-    console.error("Erro ao criar aula:", error);
-    res.status(500).json({ message: "Erro ao criar aula" });
+    res.status(500).json({ message: "Erro ao criar aula", error });
   }
 };

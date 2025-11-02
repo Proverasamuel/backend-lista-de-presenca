@@ -2,27 +2,32 @@ import { db } from "../config/firebase.js";
 
 export const markPresence = async (req, res) => {
   try {
-    const { aulaId, alunoId, token } = req.body;
+    const { universidadeId, turmaId, disciplinaId, aulaId, alunoId, token } = req.body;
 
-    // Verifica aula
-    const aulaDoc = await db.collection("aulas").doc(aulaId).get();
-    if (!aulaDoc.exists) return res.status(404).json({ message: "Aula não encontrada" });
+    const aulaRef = db
+      .collection("universidades")
+      .doc(universidadeId)
+      .collection("turmas")
+      .doc(turmaId)
+      .collection("disciplinas")
+      .doc(disciplinaId)
+      .collection("aulas")
+      .doc(aulaId);
 
-    const aula = aulaDoc.data();
+    const aulaSnap = await aulaRef.get();
+    if (!aulaSnap.exists) return res.status(404).json({ message: "Aula não encontrada" });
 
-    // Verifica token e expiração
+    const aula = aulaSnap.data();
     if (aula.token !== token || Date.now() > aula.expiresAt)
-      return res.status(400).json({ message: "QR Code inválido ou expirado" });
+      return res.status(400).json({ message: "QR inválido ou expirado" });
 
-    // Marca presença
-    await db.collection("aulas").doc(aulaId).collection("presencas").doc(alunoId).set({
+    await aulaRef.collection("presencas").doc(alunoId).set({
       presente: true,
       hora: new Date(),
     });
 
     res.json({ message: "Presença marcada com sucesso" });
   } catch (error) {
-    console.error("Erro ao marcar presença:", error);
-    res.status(500).json({ message: "Erro ao marcar presença" });
+    res.status(500).json({ message: "Erro ao marcar presença", error });
   }
 };
