@@ -2,20 +2,27 @@ import { db } from "../config/firebase.js";
 
 export const markPresence = async (req, res) => {
   try {
-   const { aulaId, alunoId, token, universidadeId, turmaId, disciplinaId } = req.body;
+    const { aulaId, alunoId, token, universidadeId, turmaId, disciplinaId } = req.body;
 
     console.log("📩 Dados recebidos do frontend:");
-    console.log({ aulaId, alunoId, token });
+    console.log({ aulaId, alunoId, token, universidadeId, turmaId, disciplinaId });
 
+    // 🔒 Valida IDs e token
+    if (!aulaId || !alunoId || !token || !universidadeId || !turmaId || !disciplinaId) {
+      console.log("❌ IDs ou token inválidos");
+      return res.status(400).json({ message: "IDs ou token inválidos" });
+    }
+
+    // 🔗 Referência correta para a aula
     const aulaRef = db
-  .collection("universidades")
-  .doc(universidadeId)
-  .collection("turmas")
-  .doc(turmaId)
-  .collection("disciplinas")
-  .doc(disciplinaId)
-  .collection("aulas")
-  .doc(aulaId);
+      .collection("universidades")
+      .doc(universidadeId)
+      .collection("turmas")
+      .doc(turmaId)
+      .collection("disciplinas")
+      .doc(disciplinaId)
+      .collection("aulas")
+      .doc(aulaId);
 
     const aulaSnap = await aulaRef.get();
 
@@ -25,20 +32,18 @@ export const markPresence = async (req, res) => {
     }
 
     const aula = aulaSnap.data();
+    console.log("📘 Dados da aula encontrada no Firestore:", aula);
 
-    console.log("📘 Dados da aula encontrada no Firestore:");
-    console.log(aula);
-
-    // valida token e expiração
+    // 🔑 Valida token e expiração
     if (aula.token !== token || Date.now() > aula.expiresAt) {
-      console.log("⚠️ QR inválido ou expirado:");
+      console.log("⚠️ QR inválido ou expirado");
       console.log("Token recebido:", token);
       console.log("Token da aula:", aula.token);
       console.log("ExpiresAt:", aula.expiresAt, "-> Agora:", Date.now());
       return res.status(400).json({ message: "QR inválido ou expirado" });
     }
 
-    // registra presença
+    // ✅ Registra presença
     await aulaRef.collection("presencas").doc(alunoId).set({
       presente: true,
       hora: new Date(),
