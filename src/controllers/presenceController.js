@@ -3,7 +3,7 @@ import { db } from "../config/firebase.js";
 export const markPresence = async (req, res) => {
   try {
     const { aulaId, alunoId, token } = req.body;
-
+    console.log("Marking presence for aulaId:", aulaId, "alunoId:", alunoId, "with token:", token);
     const aulaRef = db
       .collection("aulas")
       .doc(aulaId);
