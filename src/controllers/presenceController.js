@@ -2,15 +2,9 @@ import { db } from "../config/firebase.js";
 
 export const markPresence = async (req, res) => {
   try {
-    const { universidadeId, turmaId, disciplinaId, aulaId, alunoId, token } = req.body;
+    const { aulaId, alunoId, token } = req.body;
 
     const aulaRef = db
-      .collection("universidades")
-      .doc(universidadeId)
-      .collection("turmas")
-      .doc(turmaId)
-      .collection("disciplinas")
-      .doc(disciplinaId)
       .collection("aulas")
       .doc(aulaId);
 
