@@ -1,7 +1,5 @@
 import { db } from "../config/firebase.js";
 
-import { db } from "../config/firebase.js";
-
 export const markPresence = async (req, res) => {
   try {
     const { aulaId, alunoId, token } = req.body;
@@ -45,4 +43,3 @@ export const markPresence = async (req, res) => {
     res.status(500).json({ message: "Erro ao marcar presença", error: error.message });
   }
 };
-
