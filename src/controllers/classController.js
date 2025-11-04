@@ -29,7 +29,14 @@ export const createClass = async (req, res) => {
 
     const doc = await ref.add(newClass);
 
-    const qrData = { token, aulaId: doc.id };
+    const qrData = { 
+  token, 
+  aulaId: doc.id, 
+  universidadeId, 
+  turmaId, 
+  disciplinaId 
+};
+
     const qrCode = await QRCode.toDataURL(JSON.stringify(qrData));
 
     res.status(201).json({ id: doc.id, qrCode, ...newClass });

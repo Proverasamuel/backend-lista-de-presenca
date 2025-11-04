@@ -2,12 +2,21 @@ import { db } from "../config/firebase.js";
 
 export const markPresence = async (req, res) => {
   try {
-    const { aulaId, alunoId, token } = req.body;
+   const { aulaId, alunoId, token, universidadeId, turmaId, disciplinaId } = req.body;
 
     console.log("📩 Dados recebidos do frontend:");
     console.log({ aulaId, alunoId, token });
 
-    const aulaRef = db.collection("aulas").doc(aulaId);
+    const aulaRef = db
+  .collection("universidades")
+  .doc(universidadeId)
+  .collection("turmas")
+  .doc(turmaId)
+  .collection("disciplinas")
+  .doc(disciplinaId)
+  .collection("aulas")
+  .doc(aulaId);
+
     const aulaSnap = await aulaRef.get();
 
     if (!aulaSnap.exists) {
