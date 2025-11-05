@@ -62,7 +62,7 @@ export const getPresencasByAula = async (req, res) => {
   try {
     const { universidadeId, turmaId, disciplinaId, aulaId } = req.params;
 
-    console.log("📋 Buscando presenças da aula:", { universidadeId, turmaId, disciplinaId, aulaId });
+    console.log("📥 A buscar presenças de:", { universidadeId, turmaId, disciplinaId, aulaId });
 
     const presencasRef = db
       .collection("universidades")
@@ -78,27 +78,17 @@ export const getPresencasByAula = async (req, res) => {
     const snapshot = await presencasRef.get();
 
     if (snapshot.empty) {
-      return res.json([]);
+      console.log("📭 Nenhuma presença encontrada para esta aula.");
+      return res.status(404).json({ message: "Nenhuma presença encontrada" });
     }
 
-    const presencas = [];
+    // Converte os dados em array
+    const presencas = snapshot.docs.map(doc => ({
+      alunoId: doc.id,
+      ...doc.data()
+    }));
 
-    for (const doc of snapshot.docs) {
-      const presenca = doc.data();
-      const alunoId = doc.id;
-
-      // 🔍 Busca dados do aluno
-      const alunoSnap = await db.collection("users").doc(alunoId).get();
-      const aluno = alunoSnap.exists ? alunoSnap.data() : { nome: "Aluno desconhecido" };
-
-      presencas.push({
-        alunoId,
-        nome: aluno.name,
-        email: aluno.email,
-        presente: presenca.presente,
-        hora: presenca.hora,
-      });
-    }
+    console.log("📋 Presenças encontradas:", presencas.length);
 
     res.json(presencas);
   } catch (error) {
