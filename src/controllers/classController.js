@@ -4,12 +4,13 @@ import crypto from "crypto";
 
 export const createClass = async (req, res) => {
   try {
-    const { universidadeId, turmaId, disciplinaId, dataHora, duracao, localizacao } = req.body;
+    const { universidadeId, turmaId, disciplinaId,tema, dataHora, duracao, localizacao } = req.body;
 
     const token = crypto.randomBytes(8).toString("hex");
     const expiresAt = Date.now() + 5 * 60 * 1000;
 
     const newClass = {
+      tema,
       dataHora,
       duracao,
       localizacao,
