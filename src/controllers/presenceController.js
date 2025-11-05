@@ -57,3 +57,53 @@ export const markPresence = async (req, res) => {
     res.status(500).json({ message: "Erro ao marcar presença", error: error.message });
   }
 };
+
+export const getPresencasByAula = async (req, res) => {
+  try {
+    const { universidadeId, turmaId, disciplinaId, aulaId } = req.params;
+
+    console.log("📋 Buscando presenças da aula:", { universidadeId, turmaId, disciplinaId, aulaId });
+
+    const presencasRef = db
+      .collection("universidades")
+      .doc(universidadeId)
+      .collection("turmas")
+      .doc(turmaId)
+      .collection("disciplinas")
+      .doc(disciplinaId)
+      .collection("aulas")
+      .doc(aulaId)
+      .collection("presencas");
+
+    const snapshot = await presencasRef.get();
+
+    if (snapshot.empty) {
+      return res.json([]);
+    }
+
+    const presencas = [];
+
+    for (const doc of snapshot.docs) {
+      const presenca = doc.data();
+      const alunoId = doc.id;
+
+      // 🔍 Busca dados do aluno
+      const alunoSnap = await db.collection("users").doc(alunoId).get();
+      const aluno = alunoSnap.exists ? alunoSnap.data() : { nome: "Aluno desconhecido" };
+
+      presencas.push({
+        alunoId,
+        nome: aluno.name,
+        email: aluno.email,
+        presente: presenca.presente,
+        hora: presenca.hora,
+      });
+    }
+
+    res.json(presencas);
+  } catch (error) {
+    console.error("🔥 Erro ao buscar presenças:", error);
+    res.status(500).json({ message: "Erro ao buscar presenças", error: error.message });
+  }
+};
+
