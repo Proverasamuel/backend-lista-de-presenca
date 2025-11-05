@@ -4,6 +4,6 @@ import { createClass, getAulasPorDisciplina } from "../controllers/classControll
 const router = express.Router();
 
 router.post("/", createClass);
-router.get("/classes/:universidadeId/:turmaId/:disciplinaId", getAulasPorDisciplina);
+router.get("/:universidadeId/:turmaId/:disciplinaId", getAulasPorDisciplina);
 
 export default router;
