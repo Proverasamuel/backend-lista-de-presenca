@@ -97,7 +97,7 @@ export const getPresencasByAula = async (req, res) => {
   }
 };
 
-import { db } from "../config/firebase.js";
+
 
 export const getPresencasPorDisciplinaEData = async (req, res) => {
   try {
