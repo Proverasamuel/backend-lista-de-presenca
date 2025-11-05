@@ -1,5 +1,5 @@
 import express from "express";
-import { markPresence,getPresencasByAula } from "../controllers/presenceController.js";
+import { markPresence,getPresencasByAula,getPresencasPorDisciplinaEData } from "../controllers/presenceController.js";
 
 const router = express.Router();
 
