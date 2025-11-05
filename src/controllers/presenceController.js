@@ -82,20 +82,36 @@ export const getPresencasByAula = async (req, res) => {
       return res.status(404).json({ message: "Nenhuma presença encontrada" });
     }
 
-    // Converte os dados em array
-    const presencas = snapshot.docs.map(doc => ({
-      alunoId: doc.id,
-      ...doc.data()
-    }));
+    // Obter lista de presenças com dados do aluno
+    const presencas = await Promise.all(
+      snapshot.docs.map(async (doc) => {
+        const data = doc.data();
+        const alunoId = doc.id;
+
+        // Busca os dados do aluno (ajusta o nome da coleção se for diferente)
+        const alunoDoc = await db.collection("users").doc(alunoId).get();
+        const alunoData = alunoDoc.exists ? alunoDoc.data() : {};
+
+        return {
+          alunoId,
+          ...data,
+          aluno: {
+            nome: alunoData.nome || "Desconhecido",
+            email: alunoData.email || "—",
+            numeroEstudante: alunoData.numeroEstudante || null,
+          },
+        };
+      })
+    );
 
     console.log("📋 Presenças encontradas:", presencas.length);
-
     res.json(presencas);
   } catch (error) {
     console.error("🔥 Erro ao buscar presenças:", error);
     res.status(500).json({ message: "Erro ao buscar presenças", error: error.message });
   }
 };
+
 
 
 
