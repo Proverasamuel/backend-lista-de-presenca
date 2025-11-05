@@ -45,3 +45,32 @@ export const createClass = async (req, res) => {
     res.status(500).json({ message: "Erro ao criar aula", error });
   }
 };
+
+
+export const getAulasPorDisciplina = async (req, res) => {
+  try {
+    const { universidadeId, turmaId, disciplinaId } = req.params;
+
+    const aulasRef = db
+      .collection("universidades")
+      .doc(universidadeId)
+      .collection("turmas")
+      .doc(turmaId)
+      .collection("disciplinas")
+      .doc(disciplinaId)
+      .collection("aulas");
+
+    const snapshot = await aulasRef.get();
+
+    const aulas = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    res.json(aulas);
+  } catch (error) {
+    console.error("Erro ao buscar aulas:", error);
+    res.status(500).json({ message: "Erro ao buscar aulas", error: error.message });
+  }
+};
+
