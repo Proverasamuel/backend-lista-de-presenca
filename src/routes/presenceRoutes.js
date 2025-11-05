@@ -4,6 +4,8 @@ import { markPresence,getPresencasByAula } from "../controllers/presenceControll
 const router = express.Router();
 
 router.post("/", markPresence);
+router.get("/:universidadeId/:turmaId/:disciplinaId", getPresencasPorDisciplinaEData);
+
 router.get("/:universidadeId/:turmaId/:disciplinaId/:aulaId", getPresencasByAula); // lista presenças
 
 export default router;

@@ -97,3 +97,41 @@ export const getPresencasByAula = async (req, res) => {
   }
 };
 
+import { db } from "../config/firebase.js";
+
+export const getPresencasPorDisciplinaEData = async (req, res) => {
+  try {
+    const { universidadeId, turmaId, disciplinaId } = req.params;
+    const { data } = req.query; // formato YYYY-MM-DD
+
+    const aulasRef = db
+      .collection("universidades")
+      .doc(universidadeId)
+      .collection("turmas")
+      .doc(turmaId)
+      .collection("disciplinas")
+      .doc(disciplinaId)
+      .collection("aulas");
+
+    // 🔎 Buscar aulas da data indicada
+    const snapshot = await aulasRef.get();
+    let presencas = [];
+
+    snapshot.forEach(async (aulaDoc) => {
+      const aulaData = aulaDoc.data();
+      const dataAula = new Date(aulaData.dataHora).toISOString().split("T")[0];
+      if (dataAula === data) {
+        const presencasRef = aulaDoc.ref.collection("presencas");
+        const presencasSnap = await presencasRef.get();
+        presencasSnap.forEach((p) =>
+          presencas.push({ id: p.id, ...p.data(), aulaId: aulaDoc.id })
+        );
+      }
+    });
+
+    res.json(presencas);
+  } catch (error) {
+    console.error("Erro ao buscar presenças:", error);
+    res.status(500).json({ message: "Erro ao buscar presenças", error: error.message });
+  }
+};
