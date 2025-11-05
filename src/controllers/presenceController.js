@@ -96,7 +96,7 @@ export const getPresencasByAula = async (req, res) => {
           alunoId,
           ...data,
           aluno: {
-            nome: alunoData.nome || "Desconhecido",
+            nome: alunoData.name || "Desconhecido",
             email: alunoData.email || "—",
             numeroEstudante: alunoData.numeroEstudante || null,
           },
