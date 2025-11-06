@@ -5,10 +5,10 @@ const usersCollection = db.collection("users");
 // ✅ Criar usuário
 export const createUser = async (req, res) => {
   try {
-    const { name, email, password, role, universidadeId, turmaId } = req.body;
+    const { name, email, password,numeroEstudante, role, universidadeId, turmaId } = req.body;
 
     // Verificação de campos obrigatórios
-    if (!name || !email || !password || !role || !universidadeId || !turmaId) {
+    if (!name || !email || !password ||!numeroEstudante || !role || !universidadeId || !turmaId) {
       return res.status(400).json({ message: "Todos os campos são obrigatórios." });
     }
 
@@ -21,6 +21,7 @@ export const createUser = async (req, res) => {
     const userRecord = await auth.createUser({
       email,
       password,
+      numeroEstudante,
       displayName: name,
     });
 
@@ -29,6 +30,7 @@ export const createUser = async (req, res) => {
       uid: userRecord.uid,
       name,
       email,
+      numeroEstudante,
       role,
       universidadeId,
       turmaId,
@@ -39,6 +41,7 @@ export const createUser = async (req, res) => {
       message: "Usuário criado com sucesso!",
       uid: userRecord.uid,
       role,
+      numeroEstudante,
       universidadeId,
       turmaId,
     });
@@ -73,6 +76,7 @@ export const loginUser = async (req, res) => {
         name: user.displayName,
         email: user.email,
         role: userData.role,
+        numeroEstudante: userData.numeroEstudante,
         universidadeId: userData.universidadeId,
         turmaId: userData.turmaId,
       },
